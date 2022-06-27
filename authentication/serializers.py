@@ -12,11 +12,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'username',
-            'name',
-            'mobile_number',
-            'address',
-            'location',
-            'password')
+            'password'
+        )
 
     def create(self, validated_data):
         password = make_password(validated_data.get('password'))
@@ -31,6 +28,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'username',
             'name',
-            'mobile_number',
+            'members',
+            'phone_number',
             'address',
-            'location')
+            'subsidy_amount',
+            'subsidy_percentage',
+            'starting_date',
+            'subsidy_date'
+        )
