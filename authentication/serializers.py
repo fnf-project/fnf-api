@@ -12,7 +12,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'username',
-            'password'
+            'password',
+            'name',
+            'family_members',
+            'phone_number',
+            'address',
+            'subsidy_amount',
+            'subsidy_percentage',
+            'starting_date',
+            'subsidy_date'
         )
 
     def create(self, validated_data):
@@ -28,7 +36,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'username',
             'name',
-            'members',
+            'family_members',
             'phone_number',
             'address',
             'subsidy_amount',
