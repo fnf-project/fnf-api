@@ -15,8 +15,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(_('Phone Number'), max_length=25, help_text='Phone number')
     subsidy_amount = models.IntegerField(_('Subsidy Amount'), help_text='Subsidy Amount')
     subsidy_percentage = models.IntegerField(_('Subsidy Percentage'), help_text='Subsidy Percentage')
-    starting_date = models.DateTimeField(_('Starting Date'), help_text='Subsidy Percentage')
-    subsidy_date = models.DateTimeField(_('Starting Date'), help_text='Subsidy Percentage')
+    starting_date = models.DateTimeField(_('Starting Date'), help_text='Starting Date')
+    subsidy_date = models.DateTimeField(_('Subsidy Date'), help_text='Subsidy Date')
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
