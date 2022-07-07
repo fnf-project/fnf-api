@@ -12,7 +12,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(_('Password'), max_length=255, help_text='Password')
     address = models.CharField(_('Address'), max_length=500, help_text='Address')
     family_members = models.IntegerField(_('Family Members'), help_text='Family Members')
-    phone_number = models.CharField(_('Phone Number'), max_length=25, help_text='Phone number')
+    phone_number = models.CharField(_('Phone Number'), max_length=25, unique=True, help_text='Phone number')
     subsidy_amount = models.IntegerField(_('Subsidy Amount'), help_text='Subsidy Amount')
     subsidy_percentage = models.IntegerField(_('Subsidy Percentage'), help_text='Subsidy Percentage')
     starting_date = models.DateTimeField(_('Starting Date'), help_text='Starting Date')

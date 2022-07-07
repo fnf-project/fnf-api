@@ -1,101 +1,84 @@
 from django.contrib.auth.hashers import check_password
+from django.test import RequestFactory
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework import exceptions
+# from rest_framework.generics import UpdateAPIView
 
 from authentication.models import User
-from authentication.serializers import UserRegisterSerializer, ProfileSerializer
+from helpers import IsSuperUser
+from authentication.serializers import ChangePasswordSerializer, UserRegisterSerializer, ProfileSerializer
 
 
 class RegisterAPIView(APIView):
 
     permission_classes = (AllowAny,)
 
-    serializer_class = UserRegisterSerializer
+    # No need for the next line if handling post manually
+    # serializer_class = UserRegisterSerializer
 
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
-        data = {}
+
         if serializer.is_valid():
             user = serializer.save()
 
-            data['success'] = True
-            data['message'] = user.name + ' registered successfully!'
+            data = {'detail' : user.name + ' registered successfully!'}
 
             return Response(data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+def validate_user(attrs):
+    try:
+        user = User.objects.get(username=attrs['username'])
+
+        check = check_password(attrs['password'], user.password)
+        if check:
+            return user
+        else:
+            raise exceptions.AuthenticationFailed('Invalid Password')
+    except User.DoesNotExist:
+        raise exceptions.AuthenticationFailed('No such user')
+
+def generate_token(user):
+    try:
+        Token.objects.get(user=user).delete()
+    except:
+        pass
+    return Token.objects.create(user=user)
 
 
 class LoginAPIView(APIView):
 
     permission_classes = (AllowAny,)
 
-    def validate_user(self, username, password):
-        try:
-            user = User.objects.get(username=username)
-            check = check_password(password, user.password)
-            if check:
-                return user
-            else:
-                raise exceptions.AuthenticationFailed('Invalid Password')
-        except User.DoesNotExist:
-            raise exceptions.AuthenticationFailed('No such user')
-
-    def generate_token(self, user):
-        try:
-            Token.objects.get(user=user).delete()
-        except:
-            pass
-        return Token.objects.create(user=user)
-
     def post(self, request):
-        data = request.data
-        user = self.validate_user(data['username'], data['password'])
+        user = validate_user(request.data)
         serializer = ProfileSerializer(user)
         data = serializer.data
 
         try:
-            token = self.generate_token(user)
+            token = generate_token(user)
             data.update({'token': token.key})
             return Response(data, status=HTTP_200_OK)
         except HTTP_400_BAD_REQUEST:
             return Response("Bad Request", status=HTTP_400_BAD_REQUEST)
 
+
 class LoginSuperUserAPIView(APIView):
 
-    permission_classes = (AllowAny,)
-
-    def validate_superuser(self, username, password):
-        try:
-            user = User.objects.get(username=username)
-            if not user.is_superuser:
-                raise exceptions.PermissionDenied()
-            check = check_password(password, user.password)
-            if check:
-                return user
-            else:
-                raise exceptions.AuthenticationFailed('Invalid Password')
-        except User.DoesNotExist:
-            raise exceptions.AuthenticationFailed('No such user')
-
-    def generate_token(self, user):
-        try:
-            Token.objects.get(user=user).delete()
-        except:
-            pass
-        return Token.objects.create(user=user)
+    permission_classes = (IsSuperUser,)
 
     def post(self, request):
-        data = request.data
-        user = self.validate_superuser(data['username'], data['password'])
+        user = validate_user(request.data)
         serializer = ProfileSerializer(user)
         data = serializer.data
 
         try:
-            token = self.generate_token(user)
+            token = generate_token(user)
             data.update({'token': token.key})
             return Response(data, status=HTTP_200_OK)
         except HTTP_400_BAD_REQUEST:
@@ -110,3 +93,22 @@ class ProfileAPIView(APIView):
             return Response(serializer.data, status=HTTP_200_OK)
         except:
             return Response("Bad Request", status=HTTP_400_BAD_REQUEST)
+
+class ChangePasswordAPIView(APIView):
+    # Uncomment these lines if you don't want to use custom put method
+    # and change APIView class parameter to UpdateAPIView
+    # queryset = User.objects.all()
+    # serializer_class = ChangePasswordSerializer
+
+    # Comment this put function if you don't want to use custom put method
+    def put(self, request):
+        user = request.user
+
+        serializer = ChangePasswordSerializer(data=request.data, context={'user': user})
+        if serializer.is_valid():
+            serializer.update(user, request.data)
+
+            data = {'detail' : 'Password changed successfully!'}
+
+            return Response(data, status=HTTP_201_CREATED)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
