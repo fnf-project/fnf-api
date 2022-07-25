@@ -1,11 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView, \
     RetrieveUpdateDestroyAPIView
 
 from .models import Product, Category
 from .serializers import CategorySerializer, ProductSerializer
-from rest_framework.permissions import AllowAny
 
 
 class ProductList(ListAPIView):
@@ -13,9 +13,7 @@ class ProductList(ListAPIView):
     serializer_class = ProductSerializer
 
 
-class ProductCategoryList(ListAPIView):
-    permission_classes = (AllowAny,)
-
+class CategoryDetail(APIView):
     def get_object(self, category_slug):
         try:
             return Category.objects.get(slug=category_slug)
@@ -26,6 +24,19 @@ class ProductCategoryList(ListAPIView):
         category = self.get_object(category_slug)
         serializer = CategorySerializer(category)
 
+        return Response(serializer.data)
+
+
+class ProductDetail(APIView):
+    def get_object(self, category_slug, product_slug):
+        try:
+            return Product.objects.filter(category__slug=category_slug).get(slug=product_slug)
+        except Product.DoesNotExist:
+            raise NotFound()
+
+    def get(self, request, category_slug, product_slug, format=None):
+        product = self.get_object(category_slug, product_slug)
+        serializer = ProductSerializer(product)
         return Response(serializer.data)
 
 
@@ -49,13 +60,11 @@ class ProductRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
 
 
 class CategoryList(ListAPIView):
-    permission_classes = (AllowAny,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class CategoryCreate(CreateAPIView):
-    permission_classes = (AllowAny,)
     serializer_class = CategorySerializer
 
 

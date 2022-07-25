@@ -8,11 +8,13 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = (
             'id',
+            'category',
             'name',
             'uom',
             'weight',
             'price',
             'expiry_date',
+            'get_absolute_url',
             'created_at'
         )
 

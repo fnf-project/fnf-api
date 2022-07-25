@@ -1,4 +1,4 @@
 django
 django-filter
-django-rest-framework
+djangorestframework
 django-cors-headers

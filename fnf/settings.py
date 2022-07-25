@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'products',
+    'orders',
 ]
 
 CORS_ALLOWED_ORIGINS = [

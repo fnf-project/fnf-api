@@ -1,5 +1,4 @@
 from django.contrib.auth.hashers import check_password
-from django.test import RequestFactory
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK
@@ -14,7 +13,6 @@ from authentication.serializers import ChangePasswordSerializer, UserRegisterSer
 
 
 class RegisterAPIView(APIView):
-
     permission_classes = (AllowAny,)
 
     # No need for the next line if handling post manually
@@ -26,10 +24,11 @@ class RegisterAPIView(APIView):
         if serializer.is_valid():
             user = serializer.save()
 
-            data = {'detail' : user.name + ' registered successfully!'}
+            data = {'detail': user.name + ' registered successfully!'}
 
             return Response(data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
 
 def validate_user(attrs):
     try:
@@ -43,6 +42,7 @@ def validate_user(attrs):
     except User.DoesNotExist:
         raise exceptions.AuthenticationFailed('No such user')
 
+
 def generate_token(user):
     try:
         Token.objects.get(user=user).delete()
@@ -52,7 +52,6 @@ def generate_token(user):
 
 
 class LoginAPIView(APIView):
-
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -69,7 +68,6 @@ class LoginAPIView(APIView):
 
 
 class LoginSuperUserAPIView(APIView):
-
     permission_classes = (IsSuperUser,)
 
     def post(self, request):
@@ -94,6 +92,7 @@ class ProfileAPIView(APIView):
         except:
             return Response("Bad Request", status=HTTP_400_BAD_REQUEST)
 
+
 class ChangePasswordAPIView(APIView):
     # Uncomment these lines if you don't want to use custom put method
     # and change APIView class parameter to UpdateAPIView
@@ -108,7 +107,7 @@ class ChangePasswordAPIView(APIView):
         if serializer.is_valid():
             serializer.update(user, request.data)
 
-            data = {'detail' : 'Password changed successfully!'}
+            data = {'detail': 'Password changed successfully!'}
 
             return Response(data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
