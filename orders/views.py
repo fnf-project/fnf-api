@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
@@ -30,20 +30,18 @@ class MyOrderRetrieve(RetrieveAPIView):
         return Order.objects.filter(user=user)
 
 
-class OrderList(ListAPIView):
+class OrderListCreate(ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
-
-class OrderCreate(APIView):
-    def post(self, request):
+    def create(self, request):
         print(request.data)
         serializer = OrderSerializer(data=request.data)
 
         if serializer.is_valid():
             order = serializer.save(user=request.user)
 
-            data = {'detail' : 'Your order id is: ' + str(order.id)}
+            data = {'detail': 'Your order id is: ' + str(order.id)}
 
             return Response(data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
