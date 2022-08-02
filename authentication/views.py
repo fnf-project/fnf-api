@@ -5,18 +5,15 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_2
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework import exceptions
-# from rest_framework.generics import UpdateAPIView
 
 from authentication.models import User
 from helpers import IsSuperUser
-from authentication.serializers import ChangePasswordSerializer, UserRegisterSerializer, ProfileSerializer
+from authentication.serializers import ChangePasswordSerializer, UserRegisterSerializer,\
+    ProfileSerializer, UpdateUserSerializer
 
 
 class RegisterAPIView(APIView):
     permission_classes = (AllowAny,)
-
-    # No need for the next line if handling post manually
-    # serializer_class = UserRegisterSerializer
 
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
@@ -109,5 +106,19 @@ class ChangePasswordAPIView(APIView):
 
             data = {'detail': 'Password changed successfully!'}
 
-            return Response(data, status=HTTP_201_CREATED)
+            return Response(data, status=HTTP_200_OK)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class UpdateFCMTokenAPIView(APIView):
+    def put(self, request):
+        user = request.user
+
+        serializer = UpdateUserSerializer(instance=user, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.update(user, request.data)
+
+            data = {'message': 'FCM token updated successfully!'}
+
+            return Response(data, status=HTTP_200_OK)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

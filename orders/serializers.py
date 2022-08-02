@@ -61,3 +61,19 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, **item_data)
 
         return order
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True)
+    user = ProfileSerializer()
+
+    class Meta:
+        model = Order
+        fields = (
+            "id",
+            "total",
+            "discount",
+            "subTotal",
+            "items",
+            "user"
+        )

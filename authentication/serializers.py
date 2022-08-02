@@ -21,7 +21,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             'subsidy_amount',
             'subsidy_percentage',
             'starting_date',
-            'subsidy_date'
+            'subsidy_date',
+            'is_shopkeeper'
         )
 
     def create(self, validated_data):
@@ -45,6 +46,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'starting_date',
             'subsidy_date'
         )
+
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -71,4 +73,38 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.set_password(validated_data['password'])
         instance.save()
 
+        return instance
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'name',
+            'family_members',
+            'phone_number',
+            'address',
+            'subsidy_amount',
+            'subsidy_percentage',
+            'starting_date',
+            'subsidy_date',
+            'is_shopkeeper',
+            'fcm_token'
+        )
+        read_only_fields = ('id', 'username', 'name')
+        extra_kwargs = {
+            'fcm_token': {'required': True},
+        }
+
+    def update(self, instance, validated_data):
+        instance.family_members = validated_data.get('family_members', instance.family_members)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        instance.address = validated_data.get('address', instance.address)
+        instance.subsidy_amount = validated_data.get('subsidy_amount', instance.subsidy_amount)
+        instance.is_shopkeeper = validated_data.get('is_shopkeeper', instance.is_shopkeeper)
+        instance.fcm_token = validated_data.get('fcm_token', instance.fcm_token)
+
+        instance.save()
         return instance

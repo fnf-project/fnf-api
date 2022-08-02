@@ -17,7 +17,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     subsidy_percentage = models.IntegerField(_('Subsidy Percentage'), help_text='Subsidy Percentage')
     starting_date = models.DateTimeField(_('Starting Date'), help_text='Starting Date')
     subsidy_date = models.DateTimeField(_('Subsidy Date'), help_text='Subsidy Date')
+    fcm_token = models.CharField(max_length=255, blank=True)
 
+    is_shopkeeper = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
