@@ -64,7 +64,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+    items = MyOrderItemSerializer(many=True)
     user = ProfileSerializer()
 
     class Meta:
