@@ -1,6 +1,6 @@
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from firebase_admin import messaging
 
 from authentication.models import User
@@ -77,3 +77,9 @@ class OrderRetrieveUpdate(RetrieveUpdateAPIView):
     queryset = Order.objects.all()
     lookup_field = 'id'
     serializer_class = OrderSerializer
+
+    def patch(self, request, *args, **kwargs):
+        instance = super().patch(request, *args, **kwargs)
+        if instance:
+            data = {'detail': 'Status updated successfully'}
+            return Response(data, status=HTTP_200_OK)

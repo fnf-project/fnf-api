@@ -3,3 +3,4 @@ django-filter
 djangorestframework
 django-cors-headers
 firebase-admin
+python-dotenv

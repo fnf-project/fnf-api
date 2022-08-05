@@ -49,6 +49,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "total",
             "discount",
             "subTotal",
+            "status",
             "items",
             # "user"
         )
@@ -62,6 +63,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
         return order
 
+    def update(self, instance, validated_data):
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()
+        return instance
+
 
 class OrderListSerializer(serializers.ModelSerializer):
     items = MyOrderItemSerializer(many=True)
@@ -74,6 +80,7 @@ class OrderListSerializer(serializers.ModelSerializer):
             "total",
             "discount",
             "subTotal",
+            "status",
             "items",
             "user"
         )
