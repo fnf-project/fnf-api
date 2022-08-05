@@ -20,7 +20,8 @@ def fcm_notify(username, title, body):
             token=user.fcm_token,
             android=messaging.AndroidConfig(
                 priority='high',
-                notification=messaging.AndroidNotification(click_action="MainActivity")
+                notification=messaging.AndroidNotification(
+                    click_action="MainActivity")
             )
         )
 
@@ -67,7 +68,8 @@ class OrderListCreate(ListCreateAPIView):
             order = serializer.save(user=request.user)
 
             data = {'detail': 'Your order id is: ' + str(order.id)}
-            fcm_notify(shopkeeper.username, "Order Received #" + str(order.id), user.name)
+            fcm_notify(shopkeeper.username, "Order Received #" +
+                       str(order.id), user.name)
 
             return Response(data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
